@@ -11,7 +11,8 @@ username = os.getlogin()
 mac = "f8:94:c2:dd:9c:f3"
 os = "Ubuntu 23.04"
 
-base_url = "https://rune-master.onrender.com"
+# base_url = "https://rune-master.onrender.com"
+base_url = "http://127.0.0.1:8000"
 
 def get_cmd_from_server():
 	url = f"{base_url}/api/slave/command"
